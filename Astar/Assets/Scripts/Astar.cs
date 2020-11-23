@@ -5,7 +5,8 @@ using System.Linq;
 
 public class Astar
 {
-    private List<Node> OPEN;
+    private List<Node> openList;
+    private List<Node> closedList;
     private List<Vector2Int> path;
     private Node[,] checkedNodes;
     private int width, height;
@@ -25,19 +26,21 @@ public class Astar
     /// <returns></returns>
     public List<Vector2Int> FindPathToTarget(Vector2Int startPos, Vector2Int endPos, Cell[,] grid)
     {
-        OPEN = new List<Node>();
+        openList = new List<Node>();
+        closedList = new List<Node>();
         path = new List<Vector2Int>();
 
         width = grid.GetLength(0);
         height = grid.GetLength(1);
         checkedNodes = new Node[width, height];
         
-        OPEN.Add(new Node(startPos, null, 0, (endPos - startPos).magnitude));
+        openList.Add(new Node(startPos, null, 0, (endPos - startPos).magnitude));
 
-        while (OPEN.Count > 0)
+        while (openList.Count > 0)
         {
             currentNode = GetLowestFNode();
-            OPEN.Remove(currentNode);
+            openList.Remove(currentNode);
+            closedList.Add(currentNode);
 
             if (currentNode.position == endPos)
             {
@@ -85,9 +88,9 @@ public class Astar
                 {
                     neighbour.parent = currentNode;
                     neighbour.GScore = GTentative;
-                    if (!OPEN.Contains(neighbour))
+                    if (!openList.Contains(neighbour) && !closedList.Contains(neighbour))
                     {
-                        OPEN.Add(neighbour);
+                        openList.Add(neighbour);
                     }
                 }
             }
@@ -102,7 +105,7 @@ public class Astar
         Node _lowestFNode = new Node();
         float _lowestF = Mathf.Infinity;
 
-        foreach (Node node in OPEN)
+        foreach (Node node in openList)
         {
             if (node.FScore < _lowestF)
             {
